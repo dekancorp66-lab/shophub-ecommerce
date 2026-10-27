@@ -8,18 +8,18 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <header style={{
+    <header className="shop-header" style={{
       background: 'white', borderBottom: '1px solid var(--color-border)',
-      position: 'sticky', top: 0, zIndex: 50, boxShadow: 'var(--shadow)'
+      position: 'sticky', top: 0, zIndex: 50
     }}>
       <div className="container" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 64, gap: '1rem'
       }}>
-        <Link to="/" style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--color-primary)', letterSpacing: '-0.02em' }}>
+        <Link to="/" style={{ fontWeight: 600, fontSize: '1.3rem', color: 'var(--color-text)', letterSpacing: '.02em', fontFamily: 'var(--font-display)' }}>
           ShopHub
         </Link>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1, justifyContent: 'center' }}>
+        <nav className="shop-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1, justifyContent: 'center' }}>
           <NavLink to="/products" style={({ isActive }) => ({ fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-primary)' : 'inherit' })}>
             Shop
           </NavLink>
@@ -29,7 +29,7 @@ export default function Navbar() {
             </NavLink>
           )}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="shop-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link to="/cart" style={{ position: 'relative', fontWeight: 500 }}>
             Cart
             {cart.item_count > 0 && (

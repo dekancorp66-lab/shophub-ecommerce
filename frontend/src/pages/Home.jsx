@@ -13,53 +13,29 @@ export default function Home() {
 
   return (
     <>
-      <section style={{
-        background: 'linear-gradient(135deg, #0f766e 0%, #134e4a 100%)',
-        color: 'white', padding: '5rem 0', textAlign: 'center'
-      }}>
-        <div className="container">
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '1rem' }}>
-            Discover Quality Products
-          </h1>
-          <p style={{ fontSize: '1.15rem', opacity: 0.9, maxWidth: 520, margin: '0 auto 2rem' }}>
-            Curated selection of electronics, fashion, home essentials, and more. Free shipping on demonstration orders.
-          </p>
-          <Link to="/products" className="btn" style={{ background: 'white', color: 'var(--color-primary)', fontSize: '1.05rem', padding: '0.85rem 2rem' }}>
-            Shop Now
-          </Link>
+      <section className="home-hero">
+        <div className="container home-hero-content">
+          <span className="eyebrow">THE EVERYDAY EDIT · 2026</span>
+          <h1>Everyday,<br />thoughtfully chosen.</h1>
+          <p>Considered essentials for your wardrobe, your space, and everywhere in between.</p>
+          <Link to="/products" className="editorial-button">Explore the collection <span aria-hidden="true">↗</span></Link>
         </div>
+        <span className="hero-caption">A little more considered. A lot more you.</span>
       </section>
 
-      <section className="container" style={{ padding: '3.5rem 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 700 }}>Featured Products</h2>
-          <Link to="/products" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>View all →</Link>
+      <section className="container home-featured">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">A GOOD PLACE TO START</span>
+            <h2>The everyday edit</h2>
+          </div>
+          <Link to="/products" className="text-link">Shop all products <span aria-hidden="true">↗</span></Link>
         </div>
-        {loading ? <div className="loading">Loading products...</div> : (
-          <div className="grid-products">
+        {loading ? <div className="loading">Finding your next favorite...</div> : featured.length ? (
+          <div className="grid-products home-product-grid">
             {featured.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
-        )}
-      </section>
-
-      <section style={{ background: 'white', padding: '3rem 0', borderTop: '1px solid var(--color-border)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', textAlign: 'center' }}>
-          <div>
-            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>🚚</div>
-            <h3 style={{ fontWeight: 600, marginBottom: 4 }}>Free Shipping</h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>On all demo orders</p>
-          </div>
-          <div>
-            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>🔒</div>
-            <h3 style={{ fontWeight: 600, marginBottom: 4 }}>Secure Checkout</h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Cash on Delivery available</p>
-          </div>
-          <div>
-            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>↩️</div>
-            <h3 style={{ fontWeight: 600, marginBottom: 4 }}>Easy Returns</h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>30-day return policy</p>
-          </div>
-        </div>
+        ) : <div className="empty-state"><h3>New favorites are on the way</h3><p>Explore the collection to see everything in store.</p></div>}
       </section>
     </>
   );

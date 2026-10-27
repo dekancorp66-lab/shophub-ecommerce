@@ -8,11 +8,21 @@ export default function Catalog() {
   const [data, setData] = useState({ items: [], total: 0, pages: 0 });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recentlyViewed] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shophub-recently-viewed') || '[]');
+    } catch {
+      return [];
+    }
+  });
 
   const page = Number(searchParams.get('page') || 1);
   const q = searchParams.get('q') || '';
   const category = searchParams.get('category') || '';
   const sort = searchParams.get('sort') || 'newest';
+  const [searchTerm, setSearchTerm] = useState(q);
+
+  useEffect(() => setSearchTerm(q), [q]);
 
   useEffect(() => {
     getCategories().then(setCategories).catch(console.error);
@@ -34,48 +44,83 @@ export default function Catalog() {
   };
 
   return (
-    <div className="container" style={{ padding: '2rem 0' }}>
-      <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1.5rem' }}>All Products</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-        <input
-          type="search"
-          placeholder="Search products..."
-          defaultValue={q}
-          onKeyDown={(e) => e.key === 'Enter' && update('q', e.target.value)}
-          style={{ padding: '0.6rem 1rem', borderRadius: 8, border: '1px solid var(--color-border)', minWidth: 200 }}
-        />
-        <select value={category} onChange={(e) => update('category', e.target.value)} style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid var(--color-border)' }}>
-          <option value="">All categories</option>
-          {categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
-        </select>
-        <select value={sort} onChange={(e) => update('sort', e.target.value)} style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid var(--color-border)' }}>
-          <option value="newest">Newest</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-          <option value="name_asc">Name A–Z</option>
-        </select>
-      </div>
-
-      {loading ? <div className="loading">Loading...</div> : data.items.length === 0 ? (
-        <div className="empty-state">
-          <h3>No products found</h3>
-          <p>Try adjusting your search or filters.</p>
+    <>
+      <section className="catalog-hero">
+        <div className="catalog-hero-copy">
+          <span className="eyebrow">SHOPHUB · CURATED FOR EVERY DAY</span>
+          <h1>Find your<br />new favorite.</h1>
+          <p>Good things, chosen with care.</p>
         </div>
-      ) : (
-        <>
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>{data.total} products</p>
-          <div className="grid-products">
-            {data.items.map((p) => <ProductCard key={p.id} product={p} />)}
+      </section>
+      <div className="container catalog-container">
+        <div className="catalog-topline">
+          <div>
+            <span className="eyebrow">THE COLLECTION</span>
+            <h2>Shop all</h2>
           </div>
-          {data.pages > 1 && (
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '2rem' }}>
-              <button className="btn btn-sm btn-outline" disabled={page <= 1} onClick={() => update('page', String(page - 1))}>Previous</button>
-              <span style={{ padding: '0.4rem 0.8rem' }}>Page {page} of {data.pages}</span>
-              <button className="btn btn-sm btn-outline" disabled={page >= data.pages} onClick={() => update('page', String(page + 1))}>Next</button>
+          <span className="catalog-count">{data.total} {data.total === 1 ? 'piece' : 'pieces'}</span>
+        </div>
+        <div className="catalog-layout">
+          <aside className="catalog-sidebar" aria-label="Product filters">
+            <form className="catalog-search" onSubmit={(event) => { event.preventDefault(); update('q', searchTerm.trim()); }}>
+              <label htmlFor="catalog-search">Search the collection</label>
+              <div className="search-control">
+                <input id="catalog-search" type="search" placeholder="Try ‘headphones’" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+                <button type="submit" aria-label="Search products">↗</button>
+              </div>
+            </form>
+            <div className="filter-section">
+              <h3>Categories</h3>
+              <button className={`category-filter ${!category ? 'is-active' : ''}`} onClick={() => update('category', '')}>All products</button>
+              {categories.map((item) => (
+                <button key={item.id} className={`category-filter ${category === item.slug ? 'is-active' : ''}`} onClick={() => update('category', item.slug)}>{item.name}</button>
+              ))}
             </div>
-          )}
-        </>
+            {(q || category) && <button className="clear-filters" onClick={() => { setSearchTerm(''); setSearchParams({}); }}>Clear all filters <span aria-hidden="true">×</span></button>}
+          </aside>
+          <section className="catalog-results" aria-label="Products">
+            <div className="catalog-toolbar">
+              <span>{q ? `Results for “${q}”` : category ? categories.find((item) => item.slug === category)?.name : 'Thoughtful finds for every day'}</span>
+              <label className="sort-control">Sort by
+                <select value={sort} onChange={(event) => update('sort', event.target.value)}>
+                  <option value="newest">Featured</option>
+                  <option value="price_asc">Price: low to high</option>
+                  <option value="price_desc">Price: high to low</option>
+                  <option value="name_asc">Name: A to Z</option>
+                </select>
+              </label>
+            </div>
+            {loading ? <div className="loading">Loading the collection...</div> : data.items.length === 0 ? (
+              <div className="empty-state"><h3>No products found</h3><p>Try another search or browse all categories.</p></div>
+            ) : (
+              <>
+                <div className="grid-products catalog-product-grid">
+                  {data.items.map((product) => <ProductCard key={product.id} product={product} />)}
+                </div>
+                {data.pages > 1 && (
+                  <nav className="catalog-pagination" aria-label="Product pages">
+                    <button className="page-button" disabled={page <= 1} onClick={() => update('page', String(page - 1))}>← <span>Previous</span></button>
+                    <span>Page {page} of {data.pages}</span>
+                    <button className="page-button" disabled={page >= data.pages} onClick={() => update('page', String(page + 1))}><span>Next</span> →</button>
+                  </nav>
+                )}
+              </>
+            )}
+          </section>
+        </div>
+      </div>
+      {recentlyViewed.length > 0 && (
+        <section className="recently-viewed">
+          <div className="container">
+            <div className="section-heading">
+              <div><span className="eyebrow">PICK UP WHERE YOU LEFT OFF</span><h2>Recently viewed</h2></div>
+            </div>
+            <div className="grid-products recent-product-grid">
+              {recentlyViewed.map((product) => <ProductCard key={product.id} product={product} />)}
+            </div>
+          </div>
+        </section>
       )}
-    </div>
+    </>
   );
 }
